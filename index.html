@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IHIYOTL | Biología computacional, bioinformática y multi-ómica</title>
+  <meta name="description" content="IHIYOTL convierte datos ómicos en hipótesis biológicas defendibles: mecanismos, biomarcadores, estados celulares, reguladores maestros, firmas moleculares y resultados listos para comunicar." />
+  <meta name="author" content="Sergio Andonegui-Elguera" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="IHIYOTL | Bioinformática y biología computacional avanzada" />
+  <meta property="og:description" content="Consultoría en RNA-seq, single-cell, spatial transcriptomics, metilación, variantes, integración multi-ómica y ciencia de datos biomédicos." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/IHIYOTL.jpeg" />
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --ink: #2a0718;
+      --ink-2: #4e3140;
+      --muted: #715f69;
+      --paper: #fffdfc;
+      --soft: #f8f2f4;
+      --blue: #dceff5;
+      --blue-2: #c9e7ee;
+      --salmon: #e6a19c;
+      --salmon-2: #f4cbc6;
+      --line: rgba(42, 7, 24, 0.14);
+      --shadow: 0 24px 60px rgba(42, 7, 24, 0.05), 0 4px 12px rgba(42, 7, 24, 0.02);
+      --radius: 22px;
+      --max: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(220, 239, 245, .85), transparent 30%),
+        radial-gradient(circle at 90% 5%, rgba(244, 203, 198, .55), transparent 28%),
+        linear-gradient(180deg, #fff 0%, var(--paper) 38%, #fff 100%);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 12px;
+      background: var(--ink);
+      color: white;
+      padding: .7rem 1rem;
+      border-radius: 999px;
+      z-index: 999;
+    }
+    .skip-link:focus { left: 12px; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(20px);
+      background: rgba(255, 253, 252, 0.7);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: .85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: .08em;
+      font-size: .98rem;
+    }
+
+    .brand img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    /* ---- Menú hamburguesa ---- */
+    .menu-toggle { display: none; }
+
+    .menu-icon {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .menu-icon span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background: var(--ink);
+      border-radius: 3px;
+      transition: 0.3s;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: .92rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      padding: .55rem .75rem;
+      border-radius: 999px;
+      color: var(--ink-2);
+    }
+
+    .nav-links a:hover { background: var(--soft); color: var(--ink); }
+
+    /* En móviles */
+    @media (max-width: 940px) {
+      .menu-icon { display: flex; }
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        align-items: stretch;
+      }
+      .menu-toggle:checked ~ .nav-links { display: flex; }
+      .brand { flex: 1; }
+    }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    .hero {
+      padding: clamp(3rem, 7vw, 6.5rem) 0 3.5rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .82fr) minmax(320px, 1.18fr);
+      gap: clamp(2rem, 5vw, 4rem);
+      align-items: center;
+    }
+
+    .logo-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 10px);
+      box-shadow: var(--shadow);
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-card img {
+      max-width: 100%;
+      width: 360px;
+      height: auto;
+      display: block;
+    }
+
+    .eyebrow {
+      margin: 0 0 .85rem;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .78rem;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 6vw, 6.4rem);
+      font-weight: 950;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: clamp(1.15rem, 2vw, 1.45rem);
+      margin-bottom: .45rem;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.15rem, 2vw, 1.55rem);
+      color: var(--ink-2);
+      font-weight: 750;
+      margin: 1rem 0 1rem;
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      font-size: 1.08rem;
+      color: var(--ink-2);
+      margin: 0 0 1.35rem;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .85rem;
+      margin-top: 1.5rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      min-height: 46px;
+      padding: .75rem 1.5rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 750;
+      border: 1px solid var(--line);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(42,7,24,.18);
+    }
+    .button.primary { background: var(--ink); color: white; border-color: var(--ink); }
+    .button.secondary { background: white; color: var(--ink); }
+    .button.ghost { background: transparent; color: var(--ink); }
+
+    /* --- Métricas: 5 columnas en escritorio --- */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: .85rem;
+      margin-top: 2rem;
+    }
+
+    .metric {
+      padding: 1rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    .metric span { color: var(--muted); font-size: .9rem; }
+
+    .metric-icon {
+      width: 75px;
+      height: 75px;
+      /* SIN FONDO */
+      background: transparent;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+
+    /* Ajuste para que los iconos no desborden */
+    .metric-icon img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+
+    section { padding: 4rem 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .78fr) minmax(280px, .62fr);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 1.5rem;
+    }
+
+    .lead {
+      font-size: 1.08rem;
+      color: var(--ink-2);
+      margin: 0;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .card, .service-card, .deliverable, .workflow-step, .module-card, .feature-card {
+      transition: all 0.3s ease;
+    }
+    .card:hover, .service-card:hover, .deliverable:hover, .workflow-step:hover, .module-card:hover, .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--ink-2);
+      box-shadow: 0 15px 40px rgba(42, 7, 24, 0.08);
+    }
+    .service-card:nth-child(odd), .feature-card:nth-child(odd) { background: var(--blue); }
+    .service-card:nth-child(even), .feature-card:nth-child(even) { background: white; }
+
+    /* ===================================================
+       ICONOS
+       - .icon          → ícono de bloque (arriba del texto), tipo badge
+       - .icon-inline   → ícono inline (junto al texto del h3),
+                          acepta emoji/texto O <img>, sin fondo,
+                          mismo espíritu visual que .metric-icon
+       =================================================== */
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .65);
+      border: 1px solid var(--line);
+      font-size: 1.3rem;
+      margin-bottom: .75rem;
+    }
+
+    .icon-inline {
+      width: 75px;
+      height: 75px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: .5rem;
+      vertical-align: middle;
+      flex-shrink: 0;
+      font-size: 1.2rem; /* tamaño si el contenido es emoji/texto */
+    }
+
+    .icon-inline img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .service-card h3, .feature-card h3 {
+      display: flex;
+      align-items: center;
+    }
+
+    .service-card p, .card p, .deliverable p, .workflow-step p {
+      margin: 0;
+      color: var(--ink-2);
+    }
+
+    .module-grid, .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .module-card, .feature-card {
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .module-card ul, .feature-card ul {
+      margin: .75rem 0 0;
+      padding-left: 1.05rem;
+      color: var(--ink-2);
+    }
+
+    .module-card li, .feature-card li { margin: .22rem 0; }
+
+    .accent-panel {
+      background: linear-gradient(135deg, var(--ink), #48162c);
+      color: white;
+      border-radius: calc(var(--radius) + 12px);
+      padding: clamp(1.6rem, 4vw, 3rem);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .accent-panel::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      right: -120px;
+      top: -110px;
+      background: rgba(230,161,156,.26);
+    }
+
+    .accent-panel h2, .accent-panel p { position: relative; z-index: 1; }
+    .accent-panel p { color: rgba(255,255,255,.84); max-width: 850px; }
+
+    .deliverables {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 35px rgba(42,7,24,.055);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 840px;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: var(--blue-2);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    tr:nth-child(even) td { background: rgba(220,239,245,.36); }
+    tr:last-child td { border-bottom: 0; }
+    td strong { color: var(--ink); }
+
+    .note {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: .8rem;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: .8rem;
+      counter-reset: steps;
+    }
+
+    .workflow-step {
+      position: relative;
+      min-height: 150px;
+    }
+
+    .workflow-step::before {
+      counter-increment: steps;
+      content: counter(steps);
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--ink);
+      color: white;
+      font-weight: 900;
+      margin-bottom: .8rem;
+    }
+
+    .bio-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(320px, 1.2fr);
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .profile-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      box-shadow: 0 10px 35px rgba(42,7,24,.055);
+    }
+
+    .pub-list {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--ink-2);
+    }
+    .pub-list li { margin-bottom: .65rem; }
+
+    .contact-panel {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(280px, .55fr);
+      gap: 1.25rem;
+      align-items: center;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 10px);
+      padding: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .contact-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: .55rem;
+      color: var(--ink-2);
+    }
+
+    .contact-list a { font-weight: 780; text-decoration-thickness: .08em; text-underline-offset: .18em; }
+
+    footer {
+      padding: 2rem 0 3rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: .92rem;
+    }
+
+    .footer-row {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 940px) {
+      .hero-grid, .section-head, .bio-grid, .contact-panel { grid-template-columns: 1fr; }
+      .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card-grid, .deliverables { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .module-grid, .feature-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .card-grid, .module-grid, .feature-grid, .deliverables, .workflow, .metric-strip { grid-template-columns: 1fr; }
+      section { padding: 3rem 0; }
+      .logo-card img { width: 285px; }
+      .button { width: 100%; }
+      .hero-grid { text-align: center; }
+      .logo-card { order: -1; }
+      .cta-row { justify-content: center; }
+    }
+
+    @media print {
+      .site-header, .cta-row, .menu-toggle, .menu-icon { display: none; }
+      .nav-links { display: none; }
+      body { background: white; color: black; }
+      .card, .service-card, .module-card, .feature-card, .deliverable, .workflow-step, .profile-card, .contact-panel, .accent-panel, .logo-card { box-shadow: none; break-inside: avoid; }
+      a { text-decoration: none; }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "IHIYOTL",
+    "alternateName": "Integrative HIgh-Yield Omics Translational Lab",
+    "description": "Consultoría especializada en biología computacional, bioinformática, multi-ómica y ciencia de datos biomédicos.",
+    "areaServed": "Mexico",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Ciudad de México",
+      "addressCountry": "MX"
+    },
+    "email": "andonegui.sergio@gmail.com",
+    "founder": {
+      "@type": "Person",
+      "name": "Sergio Daniel Andonegui-Elguera",
+      "sameAs": [
+        "https://www.linkedin.com/in/sergio-andonegui-elguera-42a456148/",
+        "https://github.com/AndoneguiElguera",
+        "https://orcid.org/0000-0002-4155-5753"
+      ]
+    },
+    "serviceType": [
+      "Bioinformática",
+      "Biología computacional",
+      "RNA-seq",
+      "Single-cell transcriptomics",
+      "Spatial transcriptomics",
+      "Epigenómica",
+      "Genómica y variantes",
+      "Ciencia de datos biomédicos"
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="IHIYOTL inicio">
+        <img src="assets/IHIYOTL_mini.svg" alt="Logo de IHIYOTL" />
+        <span>IHIYOTL</span>
+      </a>
+      <!-- Hamburguesa -->
+      <input type="checkbox" id="menu-toggle" class="menu-toggle">
+      <label for="menu-toggle" class="menu-icon" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+      <div class="nav-links">
+        <a href="#servicios">Servicios</a>
+        <a href="#diferenciador">Diferenciador</a>
+        <a href="#paquetes">Paquetes</a>
+        <a href="#respaldo">Respaldo</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section id="inicio" class="hero">
+      <div class="container hero-grid">
+        <div class="logo-card" aria-label="Identidad visual IHIYOTL">
+          <img src="assets/IHIYOTL.jpeg" alt="IHIYOTL - Integrative HIgh-Yield Omics Translational Lab" />
+        </div>
+        <div>
+          <p class="eyebrow">Consultoría especializada</p>
+          <h1>IHIYOTL</h1>
+          <p class="hero-subtitle">Biología computacional | Bioinformática | Multi-ómica | Ciencia de Datos Biomédicos</p>
+          <p class="hero-copy">Convertimos datos masivos en hipótesis biológicas: mecanismos, biomarcadores, estados celulares, reguladores, firmas moleculares, reposicionamiento farmacológico y narrativas listas para comunicar.</p>
+          <div class="metric-strip" aria-label="Capas ómicas y datos integrados">
+            <div class="metric">
+              <div class="metric-icon">
+                <img src="assets/dna.png" alt="Icono DNA">
+              </div>
+              <strong>Genoma</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-icon">
+                <img src="assets/rna.png" alt="Icono RNA">
+              </div>
+              <strong>Transcriptoma</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-icon">
+                <img src="assets/epig.png" alt="Icono Epigenética">
+              </div>
+              <strong>Epigenoma</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-icon">
+                <img src="assets/prot.png" alt="Icono Proteómica">
+              </div>
+              <strong>Proteoma</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-icon">
+                <img src="assets/clin.png" alt="Icono Datos Clínicos">
+              </div>
+              <strong>Datos Clínicos</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problema">
+      <div class="container accent-panel">
+        <!-- <p class="eyebrow">Propuesta central</p> -->
+        <h2>¿Qué problema resuelve IHIYOTL?</h2>
+        <p>IHIYOTL no se limita al control de calidad y preprocesamiento de datos. Nos enfocamos en la pregunta biomédica: interpretar el sistema biológico, conectar los resultados con la hipótesis y producir evidencia comunicable para manuscritos, tesis, carteles, informes o decisiones de investigación.</p>
+      </div>
+    </section>
+
+    <section id="servicios">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Servicios</p>
+            <h2>Mapa de servicios por nivel biológico</h2>
+          </div>
+          <p class="lead">Trabajamos con datos crudos, matrices procesadas, metadatos clínicos o resultados preprocesados. Estos datos pueden provenir de cualquier tecnología y plataforma.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/dna.png" alt="Icono DNA"></span>
+              DNA
+            </h3>
+            <p>WGS, WES, paneles, microarreglos, entre otros, para observar variantes, CNV, firmas mutacionales, anotación y análisis funcional.</p>
+          </article>
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/epig.png" alt="Icono Epigenética"></span>
+              Epigenética
+            </h3>
+            <p>Metilación, ATAC-seq, DNase-seq, ChIP-seq, CUT&RUN/CUT&Tag, Hi-C, ChIA-PET, HiChIP, para observar DMPs/DMRs, anotación regulatoria, accesibilidad a cromatina, modificación de histonas y conformación tridimensional.</p>
+          </article>
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/rna.png" alt="Icono RNA"></span>
+              RNA
+            </h3>
+            <p>Bulk RNA-seq, microarreglos, RNA no codificante, long-read RNA-seq,  epitranscriptómica, CLIP-seq, RIBO-seq, SLAM-seq, para observar expresión diferencial, isoformas, firmas moleculares, interacciones, estructuras y dinámica de RNA.</p>
+          </article>
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/sing.png" alt="Icono Célula única"></span>
+              Célula única
+            </h3>
+            <p>scRNA-seq, snRNA-seq, scATAC-seq, CITE-seq, entre otras, para observar clustering, heterogeneidad, identidad celular, expresión diferencial, ontología génica, estado celular, entre otras características.</p>
+          </article>
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/spat.png" alt="Icono Spatial"></span>
+              Ómica espacial
+            </h3>
+            <p>Visium, Visium HD, Xenium, CosMx, MERSCOPE, entre otras, para observar clustering espacial, genes espacialmente variables, expresión diferencial por región, nichos, entre otros.</p>
+          </article>
+          <article class="feature-card">
+            <h3>
+              <span class="icon-inline"><img src="assets/clin.png" alt="Icono Clínica"></span>
+              Datos clínicos y biomédicos
+            </h3>
+            <p>Análisis de bases de datos públicas y particulares, análisis de supervivencia, biomarcadores, estratificación molecular y ciencia de datos biomédicos.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="servicios">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Servicios</p>
+            <h2>Servicios de biología computacional aplicada</h2>
+          </div>
+          <p class="lead">Combinamos herramientas en flujos personalizados para responder la pregunta de investigación. Sin limitarnos a estos, algunos de los enfoques incluyen:</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>Análisis mecanísticos en datos de célula única</h3>
+            <p>Anotación curada y composición diferencial, trayectorias y pseudotiempo (Monocle3, Slingshot), ciclo celular y RNA velocity (scVelo), CNV inferida (inferCNV, CopyKAT), scMetabolism, regulones específicos por tipo celular con pySCENIC, y comunicación célula-célula con CellChat, CellPhoneDB y NICHES.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Análisis mecanísticos en datos ómicos espaciales</h3>
+            <p>Dominios espaciales (BayesSpace, STAGATE, SpaGCN), vecindarios tisulares (squidpy, Giotto), deconvolución con referencia single-cell (Cell2location, RCTD, CARD), genes espacialmente variables (SpatialDE, SPARK), comunicación célula-célula en contexto espacial (CellChat, NICHES, stLearn) e integración histológica con mapas de actividad de vías.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Vías, estados moleculares y microambiente tumoral</h3>
+            <p>Firmas oncogénicas, metabolismo, hipoxia, EMT, senescencia, stemness, proliferación y estrés celular con GSEA, GSVA, ORA y Pathifier; infiltración inmune y composición celular con CIBERSORTx, xCell, EPIC, MCP-counter y quanTIseq; immunophenoscore para estimar potencial de respuesta a inmunoterapia.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Farmacología computacional, integración multiómica y modelado predictivo</h3>
+            <p>Conexión de firmas transcripcionales con bases de perturbación (CMap/LINCS, DGIdb) para reposicionamiento de fármacos, integración de expresión, variantes, CNV, metilación, clínica y supervivencia en una narrativa biológica coherente, modelos de clustering, reducción de dimensionalidad, clasificación, firmas predictivas, validación con cohortes públicas.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Redes, biología de sistemas y reguladores maestros</h3>
+            <p>Co-expresión, información mutua, correlación, módulos, hubs y preservación entre condiciones (WGCNA), actividad de factores de transcripción y regulones con DoRothEA/decoupleR, VIPER y SCENIC/pySCENIC, y análisis de redes regulatorias y blancos transcripcionales.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Evolución clonal, filogenética y anotación avanzada de variantes</h3>
+            <p>Reconstrucción de pseudofilogenias a partir de perfiles de variantes somáticas o germinales, inferencia de heterogeneidad y evolución clonal, curación con ClinVar, COSMIC, OncoKB y CIViC, predicción de impacto funcional (SIFT, PolyPhen, AlphaMissense) y anotación farmacogenómica para priorización clínica.</p>
+          </article>
+        </div>
+
+    <section id="entregables">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Entregables</p>
+            <h2>Entregables claros, reproducibles y con soporte científico</h2>
+          </div>
+        </div>
+        <div class="deliverables">
+          <article class="deliverable">
+            <h3>📄 Reporte ejecutivo</h3>
+            <p>Lectura biológica clara, hallazgos clave, limitaciones y próximos pasos.</p>
+          </article>
+          <article class="deliverable">
+            <h3>💻 Código reproducible</h3>
+            <p>Scripts en R/Python/Bash, bitácora y parámetros relevantes.</p>
+          </article>
+          <article class="deliverable">
+            <h3>📊 Figuras y tablas</h3>
+            <p>Material listo para manuscrito, tesis, cartel, seminario o informe institucional.</p>
+          </article>
+          <article class="deliverable">
+            <h3>📚 Soporte científico</h3>
+            <p>Explicación de resultados, discusión y apoyo para responder observaciones.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Flujo de trabajo</p>
+            <h2>De la pregunta a la entrega</h2>
+          </div>
+        </div>
+        <div class="workflow">
+          <article class="workflow-step">
+            <h3>Pregunta</h3>
+            <p>Objetivo, hipótesis, datos y restricciones.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Auditoría</h3>
+            <p>Metadatos, calidad, formato y factibilidad.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Análisis</h3>
+            <p>Pipeline reproducible y módulos avanzados.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Interpretación</h3>
+            <p>Mecanismos, figuras y narrativa biológica.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Entrega</h3>
+            <p>Reporte, código, tablas, soporte y cierre.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="respaldo">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Respaldo científico</p>
+            <h2>Experiencia en investigación biomédica</h2>
+          </div>
+          <p class="lead">El análisis principal está a cargo de Sergio Andonegui-Elguera, candidato a Doctor en Ciencas Biomédicas por la UNAM. Además, se cuenta con la asesoría de investigadores especializados de institutos como InCan, CINVESTAV, IMSS y RAI.</p>
+        </div>
+        <div class="bio-grid">
+          <article class="profile-card">
+            <h3>Sergio Andonegui-Elguera</h3>
+            <p>Candidato a Doctor en Ciencias Biomédicas por la UNAM y Maestro en Ciencias Bioquímicas por la UNAM.</p>
+            <p>Experiencia en cáncer, tumores hipofisarios, transcriptómica, metilación, trasncriptómica espacial, redes, deconvolución, integración clínico-molecular y generación de resultados publicables.</p>
+            <p>Sergio Andonegui-Elguera actualmente cuenta con más de 13 publicaciones científicas en revistas internacionales indizadas.</p>
+          </article>
+          <article class="profile-card">
+            <h3>Publicaciones destacadas</h3>
+            <ul class="pub-list">
+              <li><strong>Senescence, proliferative, EMT and stemness landscapes</strong> from aggressive and resistant PitNET suggest senolytic drugs as potential therapy. <em>Frontiers in Endocrinology</em>.</li>
+              <li><strong>Spatial transcriptomics reveal PI3K-AKT and metabolic alterations</strong> in aggressive, treatment-resistant lactotroph pituitary neuroendocrine tumors. <em>Acta Neuropathologica Communications</em>, 2025.</li>
+              <li><strong>Loss of long distance co-expression in lung cancer.</strong> <em>Frontiers in Genetics</em>, 2021.</li>
+              <li><strong>Transcriptome and methylome analysis reveals three cellular origins of pituitary tumors.</strong> <em>Scientific Reports</em>, 2020.</li>
+              <li><strong>Molecular alterations prompted by SARS-CoV-2 infection.</strong> <em>Archives of Medical Research</em>, 2020.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto">
+      <div class="container contact-panel">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h2>¿Tienes datos detenidos o un proyecto en fase de diseño?</h2>
+          <p class="lead">Agenda una sesión de diagnóstico inicial sin costo para juntos evaluar el alcance de los datos y estructurar una ruta de análisis óptima.</p>
+          <div class="cta-row">
+            <a class="button primary" href="mailto:andonegui.sergio@gmail.com?subject=Diagnóstico%20inicial%20IHIYOTL&body=Hola%20Sergio%2C%20quiero%20agendar%20una%20sesión%20de%20diagnóstico%20para%20un%20proyecto%20ómico.">Escribir por correo</a>
+            <a class="button secondary" href="assets/Portafolio_IHIYOTL_servicios_bioinformatica.pdf" target="_blank" rel="noopener">Ver portafolio PDF</a>
+          </div>
+        </div>
+        <ul class="contact-list" aria-label="Datos de contacto">
+          <li><strong>Sergio Andonegui-Elguera</strong></li>
+          <li>Ciudad de México, México</li>
+          <li><a href="mailto:andonegui.sergio@gmail.com">andonegui.sergio@gmail.com</a></li>
+          <li><a href="https://www.linkedin.com/in/sergio-andonegui-elguera-42a456148/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://github.com/AndoneguiElguera" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://orcid.org/0000-0002-4155-5753" target="_blank" rel="noopener">ORCID</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-row">
+      <span>© <span id="year">2026</span> IHIYOTL. Integrative HIgh-Yield Omics Translational Lab.</span>
+      <span>Servicios orientados a investigación. La interpretación de variantes no sustituye diagnóstico clínico, consejería genética ni validación en laboratorios certificados.</span>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
